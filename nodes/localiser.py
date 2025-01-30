@@ -19,6 +19,7 @@ from geometry_msgs.msg import PoseStamped
 import tf_conversions
 import tf
 import tf2_ros
+import PyKDL
 
 import teach_repeat.image_processing as image_processing
 from teach_repeat.msg import Goal
@@ -110,6 +111,19 @@ class teach_repeat_localiser:
 		self.setup_publishers()
 		self.setup_subscribers()
 
+		# initial_perturbation_rd = math.radians(self.initial_perturbation_dg)
+		# initial_perturbation_qn = tf.transformations.quaternion_from_euler(0, 0, initial_perturbation_rd)
+		# initial_perturbation_rot = PyKDL.Rotation.Quaternion(0, 0, initial_perturbation_qn[2],
+		# 													 initial_perturbation_qn[3])
+		# zero_goal = tf_conversions.toMsg(PyKDL.Frame(R=initial_perturbation_rot, V=PyKDL.Vector(0, 0, 0)))
+		# self.publish_goal(zero_goal, 0.0, False)
+		# print('Zero goal with %f degree perturbation published.' % (initial_perturbation_dg))
+
+		time_stamp = rospy.Time.now().to_sec()
+		message_as_text = json.dumps({'time_stamp': time_stamp})
+		with open(self.save_dir + ('start_time.txt'), 'w') as start_file:
+			start_file.write(message_as_text)
+
 	def setup_parameters(self):
 		# Teach Repeat Params
 		self.rotation_correction_gain = rospy.get_param('~rotation_correction_gain', 0.01)
@@ -162,6 +176,8 @@ class teach_repeat_localiser:
 		FIELD_OF_VIEW_DEG = rospy.get_param('/image_field_of_view_width_deg', 2*60.6 + 2*27.0)
 		FIELD_OF_VIEW_RAD = math.radians(FIELD_OF_VIEW_DEG)
 		self.search_range = rospy.get_param('~search-range', 1)
+
+		self.initial_perturbation_dg = rospy.get_param('/initial_perturbation_dg', 5.0)
 
 		# data saving
 		self.save_dir = os.path.expanduser(rospy.get_param('/data_save_dir', '~/miro/data/follow-straight_tests/5'))
@@ -339,7 +355,8 @@ class teach_repeat_localiser:
 		# publish offset to tf
 		# self.tf_pub.sendTransform((offset.position.x, offset.position.y, offset.position.z), (offset.orientation.x, offset.orientation.y, offset.orientation.z, offset.orientation.w), rospy.Time.now(), 'map', 'odom')
 		# publish current corrections
-		message_as_text = json.dumps({'theta_offset': theta_offset, 'path_offset': path_offset})
+		time_stamp = rospy.Time.now().to_sec()
+		message_as_text = json.dumps({'time_stamp': time_stamp, 'theta_offset': theta_offset, 'path_offset': path_offset})
 		with open(self.save_dir+('correction/%06d_correction.txt' % self.goal_number), 'w') as correction_file:
 			correction_file.write(message_as_text)
 

@@ -8,7 +8,8 @@
 	<!-- Collect image data -->
 	<node pkg="teach_repeat" type="data_collect.py" name="data_collect" output="screen">
 <!-- 		<remap from="odom" to="odometry/filtered" /> -->
-		<remap from="image" to="camera/color/image_raw" />
+<!-- 		<remap from="image" to="/camera/color/image_raw" /> -->
+		<remap from="image" to="/event_frame" />
 		<rosparam param="distance_threshold">0.2</rosparam>
 		<rosparam param="angle_threshold_deg">15.0</rosparam>                           
 	</node>
