@@ -331,12 +331,12 @@ class teach_repeat_localiser:
 	def save_data_at_goal(self, pose, goal_odom, goal_world, theta_offset, path_offset):
 		if self.save_gt_data:
 			try:
-				trans = self.tfBuffer.lookup_transform('map', 'base_link', rospy.Time())
+				trans = self.tfBuffer.lookup_transform('map', 'base_footprint', rospy.Time())
 				trans_as_text = json.dumps(message_converter.convert_ros_message_to_dictionary(trans))
-				with open(self.save_dir + ('%06d_map_to_base_link.txt' % self.goal_number), 'w') as pose_file:
+				with open(self.save_dir + ('%06d_map_to_base_footprint.txt' % self.goal_number), 'w') as pose_file:
 					pose_file.write(trans_as_text)
 			except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-				print('Could not lookup transform from /map to /base_link')
+				print('Could not lookup transform from /map to /base_footprint')
 				pass
 
 		# save full res image at goal
